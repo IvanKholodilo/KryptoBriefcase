@@ -1215,8 +1215,6 @@ class kryptoInterface(QtWidgets.QWidget):
         
         self.welcome_screen = QtWidgets.QLabel(parent = self)
         
-        QtCore.QTimer.singleShot(400000, self.reconnect)
-        
     def open_profile_dialog(self):
         self.profile_dialog = setupProfileDialog()
         self.profile_dialog.exec()
@@ -1263,8 +1261,6 @@ class kryptoInterface(QtWidgets.QWidget):
             try:
                 Thread(target = self.view.setup_graph, args = (self.valute, self.exchange, ), name = 'setup_graph').start()
             except:
-                self.predicted_list = []
-                self.predicted_list_dates = []
                 self.view.plot.setData([], [])
                 self.view.predicted_plot.setData([], [])
                 self.isRefreshed = True
@@ -1285,9 +1281,8 @@ class kryptoInterface(QtWidgets.QWidget):
         self.exchange = ccxt.binance({'enableRateLimit': True})
         try:
             Thread(target = self.view.setup_graph, args = (self.valute, self.exchange, ), name = 'setup_graph').start()
-        except:
-            self.predicted_list = [self.view.close_prices[-1]]
-            self.predicted_list_dates = [self.view.timestamps[-1]]
+        except Exception as exp:
+            print(exp)
             self.view.predicted_plot.setData([], [])
             self.view.plot.setData([], [])
         print('reconnected')
@@ -1314,8 +1309,6 @@ class kryptoInterface(QtWidgets.QWidget):
         try:
             Thread(target = self.view.setup_graph, args = (self.valute, self.exchange, ), name = 'setup_graph').start()
         except:
-            self.predicted_list = []
-            self.predicted_list_dates = []
             self.view.predicted_plot.setData([], [])
             self.view.plot.setData([], [])
             
@@ -1369,10 +1362,9 @@ class kryptoInterface(QtWidgets.QWidget):
         self.optimize_interface()
         self.view.setVisible(True)
         self.optimize_interface()   
-        
-        self.predicted_list = []
-        self.predicted_list_dates = []
+
         self.view.predicted_plot.setData(self.predicted_list_dates, self.predicted_list)
+        QtCore.QTimer.singleShot(400000, self.reconnect)
 
     def set_image(self):
         data = requests.get(self.img_url).content
